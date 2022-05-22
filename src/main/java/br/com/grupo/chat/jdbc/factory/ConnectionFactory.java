@@ -27,15 +27,7 @@ public class ConnectionFactory {
 		// c3p0(.jar) - implementa o pool de conexões
 		ComboPooledDataSource comboPooledDataSource = new ComboPooledDataSource();
 		
-		final var stringConeection = new StringBuilder()
-		.append("jdbc:mysql://")
-		.append(ip)
-		.append("/")
-		.append(db)
-		.append("?useTimezone=true&serverTimezone=UTC")
-		.toString();
-		
-		comboPooledDataSource.setJdbcUrl(stringConeection);
+		comboPooledDataSource.setJdbcUrl("jdbc:mysql://"+ip+"/"+db+"?useTimezone=true&serverTimezone=UTC");
 		comboPooledDataSource.setUser(user);
 		comboPooledDataSource.setPassword(password);
 		

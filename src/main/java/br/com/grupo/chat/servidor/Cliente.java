@@ -13,13 +13,7 @@ public class Cliente {
 
 	
 	
-	public static void main(String[] args) throws UnknownHostException, IOException {
-		
-		System.out.println("--CLIENTE--");
-		
-		new Cliente("ip.txt", 12345).executa();
-		
-	}
+	
 	
 	private String host;
 	private int porta;

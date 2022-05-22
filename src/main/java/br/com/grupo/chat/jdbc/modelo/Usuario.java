@@ -13,7 +13,7 @@ public class Usuario {
 	private String nome;
 	private String email;
 	private String senha;
-	private String descricao;
+	private String cargo;
 	
 	public Usuario(String nome, String senha) {
 		super();
@@ -42,8 +42,8 @@ public class Usuario {
 	}
 
 
-	public void setDescricao(String descricao) {
-		this.descricao = descricao;
+	public void setCargo(String cargo) {
+		this.cargo = cargo;
 	}
 	
 	public String getNome() {
@@ -54,27 +54,28 @@ public class Usuario {
 		return email;
 	}
 	public String getSenha() {
-		// envia senha criptografada
-		return null;
+		return senha;
 	}
 
-	public String getDescricao() {
-		return descricao;
+	public String getCargo() {
+		return cargo;
 	}
 
 	public void setId(int id) {
 		this.id = id;
 	}
+
+
 	
-	
-	public boolean autenticaUsuario() throws SQLException {
-		System.out.println("Autententicando: " + nome);
-		String sql = "";
-		try(PreparedStatement pstm = conexao.prepareStatement(sql)){
-			
-		}
-		return true;
-	}
+//	
+//	public boolean autenticaUsuario() throws SQLException {
+//		System.out.println("Autententicando: " + nome);
+//		String sql = "";
+//		try(PreparedStatement pstm = conexao.prepareStatement(sql)){
+//			
+//		}
+//		return true;
+//	}
 
 
 	

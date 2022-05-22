@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import br.com.grupo.chat.jdbc.modelo.Login;
 import br.com.grupo.chat.jdbc.modelo.Usuario;
 
 public class LoginDAO {
@@ -16,13 +15,13 @@ public class LoginDAO {
 		this.conexao = conexao;
 	}
 	
-	public Usuario logar(Login login) throws SQLException {
+	public Usuario logar(Usuario usuario) throws SQLException {
 		
-		System.out.println("Logando usuario " + login.getNome());
+		System.out.println("Logando usuario " + usuario.getNome());
 		String sql = "SELECT NOME, SENHA FROM USUARIOS WHERE NOME = ? AND SENHA = ?";
 		try(PreparedStatement pstm = conexao.prepareStatement(sql)){
-			pstm.setString(1, login.getNome());
-			pstm.setString(2, login.getSenha());
+			pstm.setString(1, usuario.getNome());
+			pstm.setString(2, usuario.getSenha());
 			pstm.execute();
 			
 			try(ResultSet rst = pstm.getResultSet()){

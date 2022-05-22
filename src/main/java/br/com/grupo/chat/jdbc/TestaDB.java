@@ -15,7 +15,7 @@ public class TestaDB {
 		ConnectionFactory connectionFactory = new ConnectionFactory();
 		Connection connection = connectionFactory.recuperarConexao();
 		
-		PreparedStatement stm = connection.prepareStatement("SELECT id, nome, descricao, criado_em FROM USUARIOS");
+		PreparedStatement stm = connection.prepareStatement("SELECT id, nome, email, cargo, criado_em FROM USUARIOS");
 		stm.execute();
 
 		ResultSet rst = stm.getResultSet();
@@ -23,11 +23,12 @@ public class TestaDB {
 		while(rst.next()) {
 			Integer id = rst.getInt("id");
 			String nome = rst.getString("nome");
-			String descricao = rst.getString("descricao");
+			String email = rst.getString("email");
+			String cargo = rst.getString("cargo");
 			String criadoEm = rst.getString("criado_em");
 			
 			System.out.println("Listando usuarios: ");
-			System.out.println(id + " | " + nome + " | " + descricao + " | " + criadoEm );
+			System.out.println(id + " | " + nome + " | " + email + " | " + cargo + " | " + criadoEm );
 		}
 		
 		connection.close();

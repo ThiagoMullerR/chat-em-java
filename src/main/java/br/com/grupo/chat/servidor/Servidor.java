@@ -8,21 +8,18 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.com.grupo.chat.jdbc.modelo.Usuario;
+
 public class Servidor {
-
-	public static void main(String[] args) throws IOException {
-
-		System.out.println("--SERVIDOR--");
-		new Servidor(12345).executa();
-		
-	}
 	
 	private int porta;
 	private List<PrintStream> clientes;
 	private String user;
+//	private Usuario usuario;
 	
 	public Servidor (int porta) {
 		this.porta = porta;
+		//this.usuario = usuario;
 		this.clientes = new ArrayList<PrintStream>();
 	}
 	
@@ -57,6 +54,7 @@ public class Servidor {
 	public void distribuiMensagem(String msg) {
 		//envia msg para todos
 		for (PrintStream cliente : this.clientes) {
+			
 			cliente.println(user + ":");
 			cliente.println(msg + "\n");
 		}

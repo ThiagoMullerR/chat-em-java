@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import br.com.grupo.chat.jdbc.modelo.Registra;
+import br.com.grupo.chat.jdbc.modelo.Usuario;
 
 public class RegistraDAO {
 	
@@ -16,14 +16,15 @@ public class RegistraDAO {
 		this.conexao = conexao;
 	}
 
-	public void registra(Registra usuario) throws SQLException {
+	public void registra(Usuario usuario) throws SQLException {
 		
-		String sql = "INSERT INTO USUARIOS (nome, senha, descricao) VALUES (?, ?, ?)";
+		String sql = "INSERT INTO USUARIOS (nome, email, senha, cargo) VALUES (?, ?, ?, ?)";
 		
 		try(PreparedStatement pstm = conexao.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)){
 			pstm.setString(1, usuario.getNome());
-			pstm.setString(2, usuario.getSenha());
-			pstm.setString(3, usuario.getDescricao());
+			pstm.setString(2, usuario.getEmail());
+			pstm.setString(3, usuario.getSenha());
+			pstm.setString(4, usuario.getCargo());
 			
 			pstm.execute();
 			
