@@ -14,6 +14,7 @@ public class Usuario {
 	private String email;
 	private String senha;
 	private String cargo;
+	private String criado_em;
 	
 	public Usuario(String nome, String senha) {
 		super();
@@ -63,6 +64,16 @@ public class Usuario {
 
 	public void setId(int id) {
 		this.id = id;
+	}
+
+
+	public String getCriado_em() {
+		return criado_em;
+	}
+
+
+	public void setCriado_em(String criado_em) {
+		this.criado_em = criado_em;
 	}
 
 

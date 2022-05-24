@@ -17,8 +17,8 @@ public class LoginDAO {
 	
 	public Usuario logar(Usuario usuario) throws SQLException {
 		
-		System.out.println("Logando usuario " + usuario.getNome());
-		String sql = "SELECT NOME, SENHA FROM USUARIOS WHERE NOME = ? AND SENHA = ?";
+		System.out.println("Logando usuario: " + usuario.getNome() + " senha: " + usuario.getSenha());
+		String sql = "SELECT * FROM USUARIOS WHERE NOME = ? AND SENHA = ?";
 		try(PreparedStatement pstm = conexao.prepareStatement(sql)){
 			pstm.setString(1, usuario.getNome());
 			pstm.setString(2, usuario.getSenha());
@@ -33,12 +33,17 @@ public class LoginDAO {
 	public Usuario autentica(ResultSet rst) throws SQLException {
 		
 		while(rst.next()) {
-			return new Usuario(rst.getString(1), rst.getString(2));
+			//passa restante dos parametros
 			
+			 Usuario usuarioLogado = new Usuario(rst.getString(2), rst.getString(3));
+			 usuarioLogado.setId(rst.getInt(1));
+			 usuarioLogado.setCargo(rst.getString(4));
+			 usuarioLogado.setCriado_em(rst.getString(5));
+			 usuarioLogado.setEmail(rst.getString(6));
+			 
+			 return usuarioLogado;
 		}
 		return null;
 	}
+	}
 	
-	
-
-}

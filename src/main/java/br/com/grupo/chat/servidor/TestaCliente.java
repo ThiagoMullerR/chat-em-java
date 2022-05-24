@@ -12,22 +12,23 @@ import br.com.grupo.chat.jdbc.modelo.Usuario;
 public class TestaCliente {
 public static void main(String[] args) throws UnknownHostException, IOException, SQLException {
 		
+		Usuario usuario = new Usuario("Juliana", "123");
+//		Usuario usuario = new Usuario("thi", "thi");
+		
 		System.out.println("--CLIENTE--");
 		
-		
-		Usuario usuario = new Usuario("julianao", "123");
-		
-		try(Connection conexao = new ConnectionFactory().recuperarConexao()){
-			LoginDAO loginDAO = new LoginDAO(conexao);
-			Usuario usuarioLogado = loginDAO.logar(usuario);
-			
-			if(usuarioLogado != null) {
-				System.out.println(usuarioLogado.getNome() + " logou!");
-				new Cliente("ip.txt", 12345).executa();
-			} else {
-				System.out.println("Erro - usuario ou senha errada!");
+			try {
+				new Cliente("ip.txt", 12345).executa(usuario);
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 			
-		}
 	}
 }

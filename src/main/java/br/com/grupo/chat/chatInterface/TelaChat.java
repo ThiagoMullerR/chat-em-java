@@ -26,7 +26,7 @@ import javax.swing.JTextField;
 import br.com.grupo.chat.jdbc.dao.RegistraDAO;
 import br.com.grupo.chat.jdbc.factory.ConnectionFactory;
 import br.com.grupo.chat.jdbc.modelo.Usuario;
-import br.com.grupo.chat.servidor.Conectar;
+import br.com.grupo.chat.servidor.Cliente;
 
 public class TelaChat extends JFrame implements ActionListener {
 	
@@ -294,29 +294,7 @@ public class TelaChat extends JFrame implements ActionListener {
 		
 		
 		
-		// Inicia conexao ao clicar em "conectar"
-		botConect.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (!texUser.getText().equals("") && !texSenha.getText().equals("")) {
-					try {
-						Boolean conectou = new Conectar().inicia(new Usuario(texUser.getText(), texSenha.getText()));
-						if(!conectou) {
-							JOptionPane.showMessageDialog(null, "Nome ou senha invalidos!");
-						}
-					} catch (SQLException e1) {
-						e1.printStackTrace();
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
-				} else {
-					JOptionPane.showMessageDialog(null, "Nome e Senha devem ser informados.");
-					
-				}
-					
-				
-			}
-		});
+		
 		
 		
 		// Dimensionando os Componentes
@@ -373,6 +351,38 @@ public class TelaChat extends JFrame implements ActionListener {
 			cadastro.setVisible(false);
 			
 		}
+		
+		
+		// Inicia conexao ao clicar em "conectar"
+		botConect.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (!texUser.getText().equals("") && !texSenha.getText().equals("")) {
+					try {
+						 try {
+							new Cliente("ip.txt", 12345).executa(new Usuario(texUser.getText(), texSenha.getText()));
+						} catch (ClassNotFoundException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						 
+//						if(!conectou) {
+//							JOptionPane.showMessageDialog(null, "Nome ou senha invalidos!");
+//						}Ø
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				} else {
+					JOptionPane.showMessageDialog(null, "Nome e Senha devem ser informados.");
+					
+				}
+					
+				
+			}
+		});
+		
+		
+		
 		
 		//Painel de Login
 		
