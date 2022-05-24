@@ -1,12 +1,14 @@
 package br.com.grupo.chat.servidor;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -40,7 +42,7 @@ public class Servidor {
 		
 		
 		
-		ServerSocket servidor = new ServerSocket(this.porta);
+		ServerSocket servidor = new ServerSocket(porta);
 		System.out.println(
 				"Servidor com o ip " 
 				+ InetAddress.getLocalHost().getHostAddress() + 
@@ -50,40 +52,32 @@ public class Servidor {
 		
 		while(true) {
 			//Aceita o cliente
-			Socket cliente = servidor.accept();
+			Socket conexao = servidor.accept();
 			System.out.println("Esperando a conexao com o cliente...");
 			
 			//usuario conecta
-			this.user = cliente.getInetAddress().getHostAddress();
+			this.user = conexao.getInetAddress().getHostAddress();
 			System.out.println("Nova conexao com o cliente " + user);
 			
 
 			// recebe  login do cliente
-            InputStream fluxo = cliente.getInputStream();
+            InputStream fluxo = conexao.getInputStream();
             BufferedReader br = new BufferedReader(new InputStreamReader (fluxo));
-	        System.out.println("fluxo e br");
+	       
         	String login = br.readLine();
-        	System.out.println("criou login " + login);
             String password = br.readLine();
-            System.out.println("criou pass " + password);
-	        System.out.println("login e pass");
-            System.out.println("login  = " + login);
+            
             usuario = new Usuario(login, password);
             
             
-            System.out.println("Dados do usuario - Depois do while:");
-			System.out.println("Nome: " + usuario.getNome());
-			System.out.println("Senha: " + usuario.getSenha());
-			System.out.println("Email: " + usuario.getEmail());
-			System.out.println("Cargo: " + usuario.getCargo());
             
 
 //            verifica se o login existe no banco de dados
             if(login.equals(usuario.getNome()) && password.equals(usuario.getSenha())){
                 System.out.println("Welcome, " + login);
-                try(Connection conexao = new ConnectionFactory().recuperarConexao()){
+                try(Connection conexaoDB = new ConnectionFactory().recuperarConexao()){
                 	System.out.println("conexao");
-    				LoginDAO loginDAO = new LoginDAO(conexao);
+    				LoginDAO loginDAO = new LoginDAO(conexaoDB);
     				System.out.println("loginDAO");
     				this.usuarioLogado = loginDAO.logar(usuario);
     				
@@ -116,16 +110,19 @@ public class Servidor {
     					
     					
     					//Add saida do cliente(teclado) na lista que vai ser exibida no cliente
-    					PrintStream ps = new PrintStream(cliente.getOutputStream());
+    					PrintStream ps = new PrintStream(conexao.getOutputStream());
     					this.clientes.add(ps);
     					
     					//cria tratador de cliente numa nova thread
-    					TrataCliente tc = new TrataCliente(cliente.getInputStream(), this);
-    					new Thread(tc).start();
+    					//TrataCliente tc = new TrataCliente(conexao.getInputStream(), this);
+    					//new Thread(tc).start();
+    					
+    					conexaoCliente novaConexao = new conexaoCliente(conexao);
+    					new Thread(novaConexao).start();
     					
     					
     					
-    					System.out.println("Dados do usuario:");
+    					System.out.println("Dados do usuario recebido:");
     					System.out.println("Nome: " + usuario.getNome());
     					System.out.println("Senha: " + usuario.getSenha());
     					System.out.println("Email: " + usuario.getEmail());
@@ -148,7 +145,7 @@ public class Servidor {
     			}
             }else{
                 System.out.println("erro de autenticacao");
-                cliente.close();
+                conexao.close();
             }
 			
 		}
@@ -162,3 +159,161 @@ public class Servidor {
 		}
 	}
 }
+
+
+
+
+// lucas
+
+class transferirArquivo implements Runnable{
+	
+	String nomearquivo = null;
+	int bytearq = 0;
+	String uuid = null;		
+	String caminho = "/mnt/data/Desktop/KDE/javafiletest/servidor/";
+	ObjectOutputStream saida = null;
+
+	transferirArquivo(MensagemRequisitarArquivo msg, ObjectOutputStream saida){
+		this.caminho = this.caminho + msg.uuid;
+		this.saida = saida;
+		this.nomearquivo = msg.uuid;
+		this.uuid = msg.uuid;
+	}
+
+
+		@Override
+		public void run() {
+
+			File fi = new File(caminho);
+			FileInputStream input = null;
+			try {
+				input = new FileInputStream(fi);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			int b = 0;
+
+			try {
+				while (input.available() > 0) {
+
+					b = input.read();
+					Mensagem msg = new MensagemTransferencia("servidor", nomearquivo, b, uuid);
+//					System.out.println(msg);
+					saida.writeObject(msg);
+				}
+				Mensagem msg = new MensagemTransferencia("servidor", nomearquivo, -1, uuid);
+//				System.out.println(msg);
+				saida.writeObject(msg);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			try {
+				input.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+		
+
+}
+
+class Broadcaster {
+
+	public void broadcast(Mensagem msg, ObjectOutputStream output) {
+
+		conexaoCliente.listaClientes.forEach((outputlista) -> {
+
+			if (output != outputlista) {
+				try {
+					outputlista.writeObject(msg);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+		});
+
+	}
+
+}
+
+
+
+
+
+// TrataCLiente?
+class conexaoCliente implements Runnable {
+	private Socket conexao;
+	static ArrayList<ObjectOutputStream> listaClientes = new ArrayList<>();
+	static GerenciadorArquivo ga = new GerenciadorArquivo("/mnt/data/Desktop/KDE/javafiletest/servidor/");
+	static Broadcaster bd = new Broadcaster();
+
+	conexaoCliente(Socket conexao) {
+		this.conexao = conexao;
+//		System.out.println("construido " + conexao);
+	}
+
+	@Override
+	public void run() {
+
+		System.out.println("Nova Conexão: " + conexao);
+
+		ObjectInputStream entrada = null;
+		try {
+			entrada = new ObjectInputStream(conexao.getInputStream());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		ObjectOutputStream saida = null;
+		try {
+			saida = new ObjectOutputStream(conexao.getOutputStream());
+			listaClientes.add(saida);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		while (true) {
+			Mensagem msg = null;
+
+			try {
+				msg = (Mensagem) entrada.readObject();
+			} catch (ClassNotFoundException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+			
+
+			if (msg.getClass() == MensagemUsuario.class) {
+				System.out.println(msg);
+				bd.broadcast(msg, saida);
+			} else if (msg.getClass() == MensagemTransferencia.class) {
+				try {
+					ga.Escreve((MensagemTransferencia) msg);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} else if (msg.getClass() == MensagemRequisitarArquivo.class) {
+				transferirArquivo ta = new transferirArquivo((MensagemRequisitarArquivo) msg, saida);
+				new Thread(ta).start();
+			}
+
+//			System.out.println(msg);
+		}
+
+	}
+}
+
+

@@ -12,8 +12,8 @@ import br.com.grupo.chat.jdbc.modelo.Usuario;
 public class TestaCliente {
 public static void main(String[] args) throws UnknownHostException, IOException, SQLException {
 		
-		Usuario usuario = new Usuario("Juliana", "123");
-//		Usuario usuario = new Usuario("thi", "thi");
+//		Usuario usuario = new Usuario("Juliana", "123");
+		Usuario usuario = new Usuario("thi", "thi");
 		
 		System.out.println("--CLIENTE--");
 		

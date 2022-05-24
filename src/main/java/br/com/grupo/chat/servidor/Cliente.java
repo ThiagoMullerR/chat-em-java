@@ -1,18 +1,19 @@
 package br.com.grupo.chat.servidor;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.PrintStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
+import java.util.UUID;
 
 import br.com.grupo.chat.jdbc.modelo.Usuario;
 
@@ -46,37 +47,52 @@ public class Cliente {
 //		if(ehValido) {
 //			//inicia conexao com usuario logado
 //		}
-		Socket cliente = new Socket(this.host, this.porta);
-			if(cliente != null) {
-				
+		Socket conexao = new Socket(host, porta);
+			if(conexao != null) {
 				System.out.println("O cliente se conectou ao servidor!");
-				OutputStream fluxo = cliente.getOutputStream();
+				
+				
+				OutputStream fluxo = conexao.getOutputStream();
 				OutputStreamWriter osw = new OutputStreamWriter(fluxo);
 
 				//login
-				osw.write(usuario.getNome() + "\n" + usuario.getSenha());
+				osw.write(usuario.getNome() + System.lineSeparator());
 				osw.flush();
+				osw.write(usuario.getSenha() + System.lineSeparator());
+				osw.flush();
+				osw.write("");
 				
-				System.out.println("flush");
+				
+				
+				
 				
 				// Thread para receber mensagens do servidor
-				Recebedor recebedor = new Recebedor(cliente.getInputStream());
-				System.out.println("recebedor");
-				new Thread(recebedor).start();
-				System.out.println("thread");
-				System.out.println("Dados do usuario:");
-				System.out.println("Nome: " + usuario.getNome());
-				System.out.println("Senha: " + usuario.getSenha());
-				System.out.println("Email: " + usuario.getEmail());
-				System.out.println("Cargo: " + usuario.getCargo());
+				//Recebedor recebedor = new Recebedor(conexao.getInputStream());
+
+				// thread para enviar
+				//  -----------
 				
-				
+				//thread para receber
+				//new Thread(recebedor).start();
 				
 				//le as msgs do teclado e envia para o servidor
 				Scanner teclado = new Scanner(System.in);
-				System.out.println("scanner");
-				PrintStream saida = new PrintStream(cliente.getOutputStream());
-				System.out.println("saida");
+
+				// Precisa?
+				//PrintStream saida = new PrintStream(conexao.getOutputStream());
+			
+				
+				ER.conexao = conexao;
+				ER.nome = usuario.getNome();
+				ER.teclado = teclado;
+				
+				
+				
+				
+				new Thread(new Enviar()).start();
+				new Thread(new Receber()).start();
+
+				
 //				while(teclado.hasNext()) {
 //					teclado.next();
 //				}
@@ -85,18 +101,7 @@ public class Cliente {
 //				teclado.nextLine();
 //				teclado.nextLine();
 				
-				System.out.println("\nEnviar mensagem para o servidor:");
 				
-				
-				System.out.println("Dados do usuario:");
-				System.out.println("Nome: " + usuario.getNome());
-				System.out.println("Senha: " + usuario.getSenha());
-				System.out.println("Email: " + usuario.getEmail());
-				System.out.println("Cargo: " + usuario.getCargo());
-				
-				System.out.println("antes do while");
-				
-				System.out.println("Recebendo novo clienteLogado");
 //				
 //					ObjectOutputStream outStream = new ObjectOutputStream(cliente.getOutputStream());
 //			        ObjectInputStream objectInputStream = new ObjectInputStream(cliente.getInputStream());
@@ -111,11 +116,10 @@ public class Cliente {
 //					System.out.println("Email: " + usuarioLogado.getEmail());
 //					System.out.println("Cargo: " + usuarioLogado.getCargo());
 //		        
-		        
-				while(teclado.hasNextLine()) {
-					
-					saida.println(teclado.nextLine());
-				}
+//				System.out.println("\nEnviar mensagem para o servidor:");
+//				while(teclado.hasNextLine()) {
+//					//saida.println(teclado.nextLine());
+//				}
 				
 			}
 			
@@ -124,3 +128,219 @@ public class Cliente {
 		
 	}
 }
+
+
+
+// Lucas
+abstract class ER implements Runnable {
+
+	static Socket conexao;
+	static String nome;
+	static Scanner teclado;
+
+	public void enviar(Mensagem msg, ObjectOutputStream saida) {
+		try {
+//			System.out.println(msg);
+			saida.writeObject(msg);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+}
+
+class EnviarArquivo extends ER {
+
+	ObjectOutputStream saida = null;
+	String caminho = null;
+	String nomearq = null;
+
+	EnviarArquivo(ObjectOutputStream saida, String caminho, String nomearq) {
+		this.saida = saida;
+		this.caminho = caminho;
+		this.nomearq = nomearq;
+	}
+
+	@Override
+	public void run() {
+
+		String uuid = UUID.randomUUID().toString();
+
+		File fi = new File(caminho);
+		FileInputStream input = null;
+		try {
+			input = new FileInputStream(fi);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		int b = 0;
+
+		try {
+			while (input.available() > 0) {
+
+				b = input.read();
+				Mensagem msg = new MensagemTransferencia(ER.nome, nomearq, b, uuid);
+//				System.out.println(msg);
+				enviar(msg, saida);
+			}
+			Mensagem msg = new MensagemTransferencia(ER.nome, nomearq, -1, uuid);
+//			System.out.println(msg);
+			enviar(msg, saida);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		try {
+			input.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+}
+
+class ReceberArquivo extends ER{
+	
+	String uuid = null;
+	ObjectOutputStream saida = null;
+	
+	ReceberArquivo(String uuid, ObjectOutputStream saida){
+		this.uuid = uuid;
+		this.saida = saida;
+	}
+
+	@Override
+	public void run() {
+		MensagemRequisitarArquivo msg = new MensagemRequisitarArquivo(uuid);
+		enviar(msg, saida);
+		
+		
+		
+	}
+}
+
+class Enviar extends ER {
+
+	public void run() {
+
+		ObjectOutputStream saida = null;
+		try {
+			saida = new ObjectOutputStream(ER.conexao.getOutputStream());
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+//		System.out.println("Enviar criado com " + ER.conexao);
+		System.out.println("Conectado");
+
+//		PrintStream saida = null;
+//		try {
+//			saida = new PrintStream(ER.conexao.getOutputStream());
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+
+		while (ER.teclado.hasNextLine()) {
+			String line = ER.teclado.nextLine();
+
+			try {
+				if (line.charAt(0) == '/') {
+					String[] caminho;
+					String nomearquivo;
+					caminho = line.split("/");
+					nomearquivo = caminho[caminho.length - 1];
+
+					EnviarArquivo ea = new EnviarArquivo(saida, line, nomearquivo);
+					new Thread(ea).start();
+					
+				} else if(line.charAt(0) == 'd') {
+					String[] linha;
+					String uuid;
+					linha = line.split(",");
+					uuid = linha[1];
+					
+					ReceberArquivo ra = new ReceberArquivo(uuid,saida);
+					new Thread(ra).start();
+			} else {
+				Mensagem msg = new MensagemUsuario(ER.nome, line);
+				enviar(msg, saida);
+			}
+
+			
+				
+			} catch(Exception e){
+				
+				
+			}
+		}
+	}
+
+}
+
+class Receber extends ER {
+
+	@Override
+	public void run() {
+		
+		GerenciadorArquivo ga = new GerenciadorArquivo("/mnt/data/Desktop/KDE/javafiletest/cliente/");
+
+		ObjectInputStream entrada = null;
+		try {
+			entrada = new ObjectInputStream(ER.conexao.getInputStream());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		while (true) {
+			Mensagem msg = null;
+
+
+				try {
+					msg = (Mensagem) entrada.readObject();
+					
+					if (msg.getClass() == MensagemUsuario.class) {
+						System.out.println(msg);
+					} else if (msg.getClass() == MensagemListaArquivos.class) {
+//						System.out.println(msg);
+					} else if (msg.getClass() == MensagemTransferencia.class) {
+//						System.out.println(msg);
+						
+						ga.Escreve((MensagemTransferencia) msg);
+						
+					}
+						
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+		}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
