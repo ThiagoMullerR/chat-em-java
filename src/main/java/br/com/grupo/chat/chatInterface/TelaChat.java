@@ -76,13 +76,20 @@ public class TelaChat extends JFrame implements ActionListener {
 	
 	private JScrollPane scRolagemVis;
 	private JScrollPane scRolagemEsc;
+	
+	
+	// visor 
 	private JTextArea txtVisor;
+	//escreve
 	private JTextArea txtEscreve;
+	
+	
+	
 	private JButton botLimpar;
 	private JButton botEnviar;
+	private Cliente cliente;
 	
-	
-	public TelaChat() {
+	public TelaChat() throws IOException {
 		super();
 		configurarFrame();
 		configuraMenu();
@@ -91,6 +98,7 @@ public class TelaChat extends JFrame implements ActionListener {
 		add(cadastro);
 		add(chatLogin);
 		chatLogin.setVisible(false);
+		this.cliente = new Cliente("ip.txt", 12345);
 		
 	}
 	
@@ -360,15 +368,12 @@ public class TelaChat extends JFrame implements ActionListener {
 				if (!texUser.getText().equals("") && !texSenha.getText().equals("")) {
 					try {
 						 try {
-							new Cliente("ip.txt", 12345).executa(new Usuario(texUser.getText(), texSenha.getText()));
+							cliente.executa(new Usuario(texUser.getText(), texSenha.getText()));
 						} catch (ClassNotFoundException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
 						 
-//						if(!conectou) {
-//							JOptionPane.showMessageDialog(null, "Nome ou senha invalidos!");
-//						}Ø
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
@@ -426,17 +431,17 @@ public class TelaChat extends JFrame implements ActionListener {
 		
 		if (obj.equals(botLimpar)) {
 			
-			txtEscreve.setText("");
+			txtEscreve.setText(null);
 			
 		}
 		
 		if (obj.equals(botEnviar)) {
 			
 			//Enviar a mensagem pro servidor
-			
+			cliente.capturaTexto(txtEscreve.getText());
 			
 			//Apagar a mensagem da �rea de escrita no momento do envio
-			txtEscreve.setText("");
+			
 			
 		}
 		
@@ -501,7 +506,7 @@ public class TelaChat extends JFrame implements ActionListener {
 	
 	
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		
 		new TelaChat().setVisible(true);
 

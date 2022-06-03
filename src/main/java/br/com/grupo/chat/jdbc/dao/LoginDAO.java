@@ -17,6 +17,7 @@ public class LoginDAO {
 	
 	public Usuario logar(Usuario usuario) throws SQLException {
 		
+		//usa os valores do login para validar o usuario
 		System.out.println("Logando usuario: " + usuario.getNome() + " senha: " + usuario.getSenha());
 		String sql = "SELECT * FROM USUARIOS WHERE NOME = ? AND SENHA = ?";
 		try(PreparedStatement pstm = conexao.prepareStatement(sql)){
@@ -33,8 +34,8 @@ public class LoginDAO {
 	public Usuario autentica(ResultSet rst) throws SQLException {
 		
 		while(rst.next()) {
-			//passa restante dos parametros
-			
+			//passa restante dos valores que estao guardado no banco de dados
+			// para o usuario
 			 Usuario usuarioLogado = new Usuario(rst.getString(2), rst.getString(3));
 			 usuarioLogado.setId(rst.getInt(1));
 			 usuarioLogado.setCargo(rst.getString(4));

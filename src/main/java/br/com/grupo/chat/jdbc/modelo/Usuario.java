@@ -66,7 +66,6 @@ public class Usuario {
 		this.id = id;
 	}
 
-
 	public String getCriado_em() {
 		return criado_em;
 	}

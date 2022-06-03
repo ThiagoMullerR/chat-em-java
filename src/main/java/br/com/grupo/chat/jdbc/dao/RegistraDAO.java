@@ -17,7 +17,7 @@ public class RegistraDAO {
 	}
 
 	public void registra(Usuario usuario) throws SQLException {
-		
+		//Registra o usuario no banco de dados
 		String sql = "INSERT INTO USUARIOS (nome, email, senha, cargo) VALUES (?, ?, ?, ?)";
 		
 		try(PreparedStatement pstm = conexao.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)){

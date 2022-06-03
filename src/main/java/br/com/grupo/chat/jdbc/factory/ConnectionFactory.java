@@ -9,6 +9,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 public class ConnectionFactory {
 	
+	//Estabelece a conexao do servidor com o banco de dados
 	private String 
 		ip = "localhost",
 		db = "chat_db",
@@ -40,9 +41,6 @@ public class ConnectionFactory {
 	public Connection recuperarConexao() throws SQLException{
 		return this.dataSource.getConnection();
 	}
-	
-	
-	
-	
-	
 }
+
+

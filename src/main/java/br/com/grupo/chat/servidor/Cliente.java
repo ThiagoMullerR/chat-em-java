@@ -18,14 +18,11 @@ import java.util.UUID;
 import br.com.grupo.chat.jdbc.modelo.Usuario;
 
 public class Cliente {
-
-	
-	
-	
 	private Usuario usuario;
 	private String host;
 	private int porta;
 	private Usuario usuarioLogado;
+	private String line;
 	
 	public Cliente(String arquivoComOIp, int porta) throws IOException {
 		BufferedReader br = new BufferedReader(
@@ -63,9 +60,6 @@ public class Cliente {
 				osw.write("");
 				
 				
-				
-				
-				
 				// Thread para receber mensagens do servidor
 				//Recebedor recebedor = new Recebedor(conexao.getInputStream());
 
@@ -76,11 +70,12 @@ public class Cliente {
 				//new Thread(recebedor).start();
 				
 				//le as msgs do teclado e envia para o servidor
-				Scanner teclado = new Scanner(System.in);
+				//Scanner teclado = new Scanner(System.in);
 
 				// Precisa?
 				//PrintStream saida = new PrintStream(conexao.getOutputStream());
 			
+				Scanner teclado = new Scanner(System.in);
 				
 				ER.conexao = conexao;
 				ER.nome = usuario.getNome();
@@ -127,6 +122,11 @@ public class Cliente {
 		//Scanner nome = new Scanner((Readable) usuario);
 		
 	}
+	// captura a mensagem escrita na interface grafica e passa para o cliente
+		public void capturaTexto(String mensagem) {
+		  	
+		  	new Enviar().run(mensagem);
+		}
 }
 
 
@@ -227,7 +227,7 @@ class ReceberArquivo extends ER{
 
 class Enviar extends ER {
 
-	public void run() {
+	public void run(String line) {
 
 		ObjectOutputStream saida = null;
 		try {
@@ -247,7 +247,7 @@ class Enviar extends ER {
 //		}
 
 		while (ER.teclado.hasNextLine()) {
-			String line = ER.teclado.nextLine();
+			//String line = ER.teclado.nextLine();
 
 			try {
 				if (line.charAt(0) == '/') {
@@ -281,9 +281,16 @@ class Enviar extends ER {
 		}
 	}
 
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
 
 class Receber extends ER {
+	private Mensagem msg = null;
 
 	@Override
 	public void run() {
@@ -299,7 +306,7 @@ class Receber extends ER {
 		}
 
 		while (true) {
-			Mensagem msg = null;
+			
 
 
 				try {
@@ -323,6 +330,7 @@ class Receber extends ER {
 
 			}
 		}
+	
 }
 
 

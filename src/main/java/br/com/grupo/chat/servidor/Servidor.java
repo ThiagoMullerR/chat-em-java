@@ -68,9 +68,6 @@ public class Servidor {
             String password = br.readLine();
             
             usuario = new Usuario(login, password);
-            
-            
-            
 
 //            verifica se o login existe no banco de dados
             if(login.equals(usuario.getNome()) && password.equals(usuario.getSenha())){
@@ -254,6 +251,7 @@ class conexaoCliente implements Runnable {
 	static ArrayList<ObjectOutputStream> listaClientes = new ArrayList<>();
 	static GerenciadorArquivo ga = new GerenciadorArquivo("/mnt/data/Desktop/KDE/javafiletest/servidor/");
 	static Broadcaster bd = new Broadcaster();
+	private Mensagem msg = null;
 
 	conexaoCliente(Socket conexao) {
 		this.conexao = conexao;
@@ -283,8 +281,8 @@ class conexaoCliente implements Runnable {
 		}
 
 		while (true) {
-			Mensagem msg = null;
-
+			
+			
 			try {
 				msg = (Mensagem) entrada.readObject();
 			} catch (ClassNotFoundException | IOException e) {
