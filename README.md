@@ -1,7 +1,10 @@
 # Chat online com transferência de arquivos com Java Sockets
-
 O objetivo do presente trabalho é criar um programa em Java utilizando todos os conceitos aprendidos durante as aulas da disciplina de Arquitetura de Redes de Computadores (ARC) com a finalidade de desenvolver uma ferramenta para comunicação em rede, que permita que duas ou mais pessoas possam se comunicar,
 utilizando o protocolo TCP/IP. Além da opção do chat, a ferramenta também terá a opção de enviar arquivos entre os usuários.
+
+## Composição do software
+Este projeto inclui tanto o Server quanto o Client.
+Foi utilizado principalmente Sockets, Java.io, Swing (GUI), JDBC, DAO e MySQL.
 
 ## Vídeo demonstrando o funcionamento
 https://www.youtube.com/watch?v=vbnzUGB44_Q
