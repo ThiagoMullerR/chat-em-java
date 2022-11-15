@@ -11,7 +11,7 @@ https://www.youtube.com/watch?v=vbnzUGB44_Q
 [![Chat online com transferência de arquivos com Java Sockets](https://user-images.githubusercontent.com/54039738/202032686-0965ed91-744b-4697-a686-f1c878b91312.png)](https://www.youtube.com/watch?v=vbnzUGB44_Q "Chat online com transferência de arquivos com Java Sockets")
 
 ## Apresentação em PDF
-[Chat em JAVA.pdf](https://github.com/ThiagoMullerR/chat/files/10016459/Versao_Final.pdf)
+[Apresentacao.pdf](https://github.com/ThiagoMullerR/chat-em-java/files/10016758/Apresentacao.pdf)
 
 
 ### Créditos:
